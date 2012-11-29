@@ -13,9 +13,10 @@ public final class Normalizer {
 			else{
 				normalURL.setPortNumber(url.getPortNumber());
 			}
-			String domain = url.getDomainName();
-			if(domain.contains("WWW")){
-				normalURL.setDomainName(domain.substring(domain.indexOf("WWW")));
+		}
+			String domain = url.getDomainName().toLowerCase();
+			if(domain.contains("www")){
+				normalURL.setDomainName(domain.substring(domain.indexOf("www")));
 			}
 			else{
 				normalURL.setDomainName(domain);
@@ -23,7 +24,7 @@ public final class Normalizer {
 				normalURL.setIPAddress(url.getIPAddress());
 				normalURL.setUserInfo(url.getUserInfo());
 				normalURL.setPath(url.getPath());
-		}
+		
 		
 		return normalURL;
 	}

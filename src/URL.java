@@ -123,7 +123,13 @@ class URL {
 			}
 		}
 		if(!path.isEmpty()){
-			url += path;
+			url += ":" + path;
+		}
+		if(!query.isEmpty()){
+			url += "/" + query;
+		}
+		if(!fragment.isEmpty()){
+			url += fragment;
 		}
 		return url;
 	}
