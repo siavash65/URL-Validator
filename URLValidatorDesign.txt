@@ -1,0 +1,179 @@
+﻿URL Validator
+By:
+Siavash Baratchi
+Youngmin Lee
+Hyunjoon Lee
+Hunlan Lin
+Garret Sato
+
+
+Definition of a Valid URL
+
+
+To design an URL validator we first need to define a valid URL. A generic syntax for URL is:
+
+
+<scheme name> : <hierarchical part> [ ? <query> ] [ # <fragment> ]
+scheme://domain:port/path?query_string#fragment_id
+
+
+and example of a valid URL can look like the following.
+
+
+             foo://example.com:8042/over/there?name=ferret#nose
+             \_/   \______________/\_________/ \_________/ \__/
+               |          |              |           |       |
+          scheme      authority         path        query  fragment
+
+To validate a URL we need to define every component. their purpose, and characters they can contain.
+
+
+Scheme
+
+
+The scheme name consists of a sequence of characters beginning with a letter and followed by any combination of letters, digits, plus ("+"), period ("."), or hyphen ("-"). Schemes are case-insensitive, the canonical form is lowercase and documents that specify schemes must do so with lowercase letters. It is followed by a colon (":"). 
+The scheme name defines the namespace, purpose, and the syntax of the remaining part of the URL. Software will try to process a URL according to its scheme and context.
+Our Validator validates URLs that start with http,https,ftp scheme names which they all follow the generic syntax.
+The list of all the Official IANA-registered schemes can be find here.
+
+
+Hierarchical Part
+
+
+Hierarchical part usually start with a double forward slash “//” and contains authority and path.             
+
+
+
+
+Authority
+This part holds an optional user-information part, terminated with "@" (e.g. username:password@); a hostname (e.g., domain name or IP address); and an optional port number, preceded by a colon ":".
+
+
+A URL example that contains username password, domain name, port number, path, query, and fragment.
+foo://username:password@example.com:8042/over/there/index.dtb?type=animal&name=narwhal#nose
+
+
+
+
+Domain Name
+The domain name consist of one or more parts that are called labels.
+The rightmost label is the top-level domain. We are considering all the generic top-level domains (gTLD) valid including but not limited to com, org, gov, net. The full list can be find here.
+
+
+Each label to the left of the rightmost label is the subdomain of the domain to the right.The tree of labels can consist up to 127 labels.The full domain name may not exceed a total length of 255 characters. 
+
+
+
+
+IP Address
+Two versions of the Internet Protocol (IP) are in use: IP Version 4 and IP Version 6. Each version defines an IP address differently. Because of its prevalence, the generic term IP address typically still refers to the addresses defined by IPv4.
+IPv4 addresses are canonically represented in dot-decimal notation, which consists of four decimal numbers, each ranging from 0 to 255, separated by dots, e.g., 172.16.254.1. Each part represents a group of 8 bits (octet) of the address.
+
+
+
+
+Port Number
+Port numbers can occasionally be seen in a web or other service Uniform Resource Locator (URL). By default, HTTP uses port 80 and HTTPS uses port 443, but a URL like http://www.example.com:8080/path/ specifies that the web resource be served by the HTTP server on port 8080. 
+
+
+
+
+path
+This part, if present, must begin with a forward slash ("/"). The path is a sequence of segments (conceptually similar to directories, though not necessarily representing them) separated by a forward slash ("/"). 
+Query
+
+
+The query is an optional part, separated by a question mark ("?"), that contains additional identification information that is not hierarchical in nature. The query string syntax is not generically defined, but it is commonly organized as a sequence of <key>=<value> pairs, with the pairs separated by a semicolon or an ampersand. For example:
+Semicolon: key1=value1;key2=value2;key3=value3
+Ampersand: key1=value1&key2=value2&key3=value3
+
+
+
+Fragment
+
+
+The fragment is an optional part separated from the front parts by a hash ("#"). It holds additional identifying information that provides direction to a secondary resource, e.g., a section heading (in an article) identified by the remainder of the URI. When the primary resource is an HTML document, the fragment is often an id attribute of a specific element and web browsers will make sure this element is visible. For more information about the syntax of fragment click here.
+ 
+Canonical Form 
+
+
+For the canonicalization we have decided to use a combination of normalizations that preserve semantics and normalizations that change semantics.
+The normalizations that we are using are:
+1. Converting the scheme and host to lower case
+2. Removing the default port
+3. Removing the fragment
+4. Removing the query
+5. Removing “www” as the first domain label
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Design
+We are going to have three classes; Parser, Normalizer, and Comparator
+
+
+Parser 
+The parser class parses each url and decides whether or not a URL is valid or not. The parser class has the following methods.
+
+
+Public void tokenize(String url)
+The tokenizer breaks down the given url into separate parts that make up the url such as; scheme name, domain name, port number, IP address, path, query, and fragment.
+
+
+Public bool syntaxChecker(String url)
+Decides whether the semantic of the given url is valid or not by checking the order of tokens and making sure they are followed by the right symbols(i.e. scheme name should be followed by “://” for the generic syntax.)
+
+
+All the following method check the validation of the tokens based on the definition that we have for each token mentioned on the definition portion of this document, for example the scheme name is valid if its one of http, https, ftp.
+
+
+Public bool isShemeNameValid()
+Detects whether the scheme name is valid or not
+
+
+Public bool isDomainNameValid()
+Detects whether the Domain name is valid or not
+
+
+Public bool isPortNumberValid()
+Detects whether the port number is valid or not
+
+
+Public bool isIPAddressValid()
+Detects whether the IP address is valid or not
+
+
+
+
+Normalizer
+The normalizer class normalizes the URLs that has been passed by the parser as a valid URL to make them ready to get compared. The normalizer class contains the following methods.
+
+
+creatNormalizedUrl method calls the normalizer functions that follow after this function and then assembles the new normalized url based on that and the general syntax
+
+
+public static URL nomalize(URL url)
+ the normalizer creats a normalizedurl performing the following tasks
+Converts the scheme and host to lower case, removes the default port, removes the fragment, removes the query, and removes “www” as the first domain label.
+
+
+
+
+Comparator
+The comparator operates on the valid normalized URLs. The URLs are passed as string and the comparator compares them alphabetically. It first compares the scheme name and if the normalized scheme names are equal then it compares the hierarchical parts and if the normalized hierarchical parts are equal then it compares the queries and so on until it reaches the end. If two urls have the same exact tokens and all the normalized tokens are equal the two urls are considered equal. Using this comparator we sort the valid normalized urls ascending order. If a url has a subset of another url’s tokens that url is smaller that the superset url. In comparing two url as soon as we find the first token that is not equal we can stop comparing and the bigger url is the one that has the bigger token among the last tokens that were compared. 
+
+
+For more information check out the following link: 
+http://tools.ietf.org/html/rfc3986
