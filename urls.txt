@@ -1,0 +1,6 @@
+http://www.example.com/display?lang=en&article=fred
+http://www.example.com:8080/path/#section1
+http://www.example.com:80/path/#section1
+http://208.77.188.166/
+http://en.wikipedia.org/wiki/Unit_testing#Unit_testing_limitations
+http://en.wikipedia.org/wiki/Unit_testing#Language-level_unit_testing_support
