@@ -1,7 +1,7 @@
 
 public final class Normalizer {
 	
-	public static URL normalURL;
+	private static URL normalURL;
 	public static URL nomalize(URL url){
 		normalURL = new URL();
 		normalURL.setSchemeName(url.getSchemeName().toLowerCase());
@@ -16,7 +16,7 @@ public final class Normalizer {
 		}
 			String domain = url.getDomainName().toLowerCase();
 			if(domain.contains("www")){
-				normalURL.setDomainName(domain.substring(domain.indexOf("www")));
+				normalURL.setDomainName(domain.substring(domain.indexOf("www")+4));
 			}
 			else{
 				normalURL.setDomainName(domain);
